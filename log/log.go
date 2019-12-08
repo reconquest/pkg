@@ -31,6 +31,14 @@ func SetDebug(enabled bool) {
 	}
 }
 
+func NewChild() *cog.Logger {
+	return logger.NewChild()
+}
+
+func NewChildWithPrefix(prefix string) *cog.Logger {
+	return logger.NewChildWithPrefix(prefix)
+}
+
 func Fatalf(
 	err error,
 	message string,
