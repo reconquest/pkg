@@ -26,8 +26,12 @@ func init() {
 func SetDebug(enabled bool) {
 	if enabled {
 		stderr.SetLevel(lorg.LevelDebug)
-	} else {
-		stderr.SetLevel(lorg.LevelInfo)
+	}
+}
+
+func SetTrace(enabled bool) {
+	if enabled {
+		stderr.SetLevel(lorg.LevelTrace)
 	}
 }
 
