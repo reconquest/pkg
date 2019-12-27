@@ -11,6 +11,19 @@ var (
 	stderr *lorg.Log
 )
 
+type (
+	Level = lorg.Level
+)
+
+const (
+	LevelFatal   = lorg.LevelFatal
+	LevelError   = lorg.LevelError
+	LevelWarning = lorg.LevelWarning
+	LevelInfo    = lorg.LevelInfo
+	LevelDebug   = lorg.LevelDebug
+	LevelTrace   = lorg.LevelTrace
+)
+
 func init() {
 	stderr = lorg.NewLog()
 	stderr.SetIndentLines(true)
@@ -23,16 +36,8 @@ func init() {
 	logger.SetLevel(lorg.LevelDebug)
 }
 
-func SetDebug(enabled bool) {
-	if enabled {
-		stderr.SetLevel(lorg.LevelDebug)
-	}
-}
-
-func SetTrace(enabled bool) {
-	if enabled {
-		stderr.SetLevel(lorg.LevelTrace)
-	}
+func SetLevel(level Level) {
+	stderr.SetLevel(level)
 }
 
 func NewChild() *cog.Logger {
