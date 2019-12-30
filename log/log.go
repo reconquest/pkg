@@ -33,7 +33,7 @@ func init() {
 
 	logger = cog.NewLogger(stderr)
 
-	logger.SetLevel(lorg.LevelDebug)
+	logger.SetLevel(lorg.LevelInfo)
 }
 
 func SetLevel(level Level) {
