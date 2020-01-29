@@ -1,6 +1,7 @@
 package web
 
 import (
+	"bytes"
 	"crypto/sha512"
 	"encoding/hex"
 	"io"
@@ -162,20 +163,9 @@ func (web *Web) ServeResources(prefix string) http.HandlerFunc {
 
 func (web *Web) log(handler Handler) Handler {
 	return func(context *Context) Status {
-		response := &Response{
-			ResponseWriter: context.GetResponseWriter(),
-			Code:           http.StatusOK,
-		}
-
-		context.SetResponseWriter(response)
-
 		start := time.Now()
 
 		status := handler(context)
-
-		if status.Code > 0 {
-			response.WriteHeader(status.Code)
-		}
 
 		duration := time.Now().Sub(start)
 
@@ -197,7 +187,7 @@ func (web *Web) log(handler Handler) Handler {
 
 		logger(
 			"{http} %v %4v %v | %.5f %v",
-			response.Code,
+			status.Code,
 			request.Method,
 			request.URL.String(),
 			duration.Seconds(),
@@ -235,11 +225,26 @@ func (web *Web) serve(
 	request *http.Request,
 	endpoint Handler,
 ) {
-	context := NewContext(writer, request, web.templates)
+	response := &response{
+		real:   writer,
+		Code:   http.StatusOK,
+		header: http.Header{},
+		buffer: bytes.NewBuffer(nil),
+	}
+
+	context := NewContext(response, request, web.templates)
 
 	handler := chain(web.middlewares, endpoint)
 
 	context.status = handler(context)
+	if context.status.Code != 0 {
+		response.Code = context.status.Code
+	}
+
+	err := response.flush()
+	if err != nil {
+		log.Errorf(err, "error while flushing response: %s", request.URL)
+	}
 }
 
 func chain(middlewares []func(Handler) Handler, endpoint Handler) Handler {
