@@ -136,6 +136,21 @@ func (web *Web) ServeTemplate(name string) http.HandlerFunc {
 	)
 }
 
+func (web *Web) ServeTemplateWithData(
+	name string,
+	data map[string]interface{},
+) http.HandlerFunc {
+	return web.ServeFunc(
+		func(context *Context) Status {
+			for key, value := range data {
+				context.Set(key, value)
+			}
+
+			return context.Render(name)
+		},
+	)
+}
+
 func (web *Web) ServeFunc(handler Handler) http.HandlerFunc {
 	return func(
 		writer http.ResponseWriter,
@@ -159,6 +174,12 @@ func (web *Web) ServeDirectory(dir string, prefix string) http.HandlerFunc {
 
 func (web *Web) ServeResources(prefix string) http.HandlerFunc {
 	return web.ServeDirectory(web.resources, prefix)
+}
+
+func (web *Web) Static(path string) {
+	path = strings.TrimSuffix(path, "/") + "/"
+
+	web.Mux.Get(path+"*", web.ServeResources(path))
 }
 
 func (web *Web) log(handler Handler) Handler {
