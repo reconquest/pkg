@@ -307,3 +307,38 @@ func (web *Web) hash(filename string) string {
 
 	return hash[:6]
 }
+
+func (web *Web) RedirectSlashes(exclude ...string) func(http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		fn := func(w http.ResponseWriter, r *http.Request) {
+			if len(exclude) > 0 {
+				for _, prefix := range exclude {
+					if strings.HasPrefix(r.URL.Path, prefix) {
+						next.ServeHTTP(w, r)
+						return
+					}
+				}
+			}
+			var path string
+			ctx := chi.RouteContext(r.Context())
+			if ctx.RoutePath == "" {
+				match := chi.NewRouteContext()
+				if len(r.URL.Path) > 0 && r.URL.Path[len(r.URL.Path)-1] != '/' {
+					if web.Match(match, r.Method, r.URL.Path+"/") {
+						if r.URL.RawQuery != "" {
+							path = r.URL.Path + "/?" + r.URL.RawQuery
+						} else {
+							path = r.URL.Path + "/"
+						}
+						http.Redirect(w, r, path, 301)
+						return
+					}
+				}
+			}
+
+			next.ServeHTTP(w, r)
+		}
+
+		return http.HandlerFunc(fn)
+	}
+}
