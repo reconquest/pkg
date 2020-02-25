@@ -165,6 +165,11 @@ func (web *Web) ServeDirectory(dir string, prefix string) http.HandlerFunc {
 		writer http.ResponseWriter,
 		request *http.Request,
 	) {
+		if strings.HasSuffix(request.URL.Path, "/") {
+			http.NotFound(writer, request)
+			return
+		}
+
 		http.StripPrefix(prefix, http.FileServer(http.Dir(dir))).ServeHTTP(
 			writer,
 			request,
