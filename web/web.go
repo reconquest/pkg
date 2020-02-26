@@ -15,9 +15,9 @@ import (
 
 	"html/template"
 
+	"github.com/NYTimes/gziphandler"
 	"github.com/eknkc/amber"
 	"github.com/go-chi/chi"
-	"github.com/go-chi/chi/middleware"
 	"github.com/reconquest/karma-go"
 	"github.com/reconquest/pkg/log"
 	"github.com/reconquest/pkg/stack"
@@ -46,7 +46,7 @@ func New() *Web {
 	web.Use(web.recover)
 	web.Use(web.log)
 
-	web.Mux.Use(middleware.Compress(gzip.BestCompression))
+	web.Mux.Use(gziphandler.MustNewGzipLevelHandler(gzip.BestCompression))
 
 	return &web
 }
