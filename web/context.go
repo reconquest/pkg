@@ -121,6 +121,8 @@ func (context *Context) Render(name string) Status {
 		)
 	}
 
+	context.GetResponseWriter().Header().Set("Content-Type", "text/html; charset=utf-8")
+
 	err := context.templates.ExecuteTemplate(
 		context.writer,
 		name,

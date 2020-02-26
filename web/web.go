@@ -2,6 +2,7 @@ package web
 
 import (
 	"bytes"
+	"compress/gzip"
 	"crypto/sha512"
 	"encoding/hex"
 	"io"
@@ -14,9 +15,9 @@ import (
 
 	"html/template"
 
-	"github.com/NYTimes/gziphandler"
 	"github.com/eknkc/amber"
 	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/middleware"
 	"github.com/reconquest/karma-go"
 	"github.com/reconquest/pkg/log"
 	"github.com/reconquest/pkg/stack"
@@ -44,6 +45,8 @@ func New() *Web {
 
 	web.Use(web.recover)
 	web.Use(web.log)
+
+	web.Mux.Use(middleware.Compress(gzip.BestCompression))
 
 	return &web
 }
@@ -162,12 +165,10 @@ func (web *Web) ServeFunc(handler Handler) http.HandlerFunc {
 }
 
 func (web *Web) ServeDirectory(dir string, prefix string) http.HandlerFunc {
-	handler := gziphandler.GzipHandler(
-		http.StripPrefix(
-			prefix,
-			http.FileServer(
-				http.Dir(dir),
-			),
+	handler := http.StripPrefix(
+		prefix,
+		http.FileServer(
+			http.Dir(dir),
 		),
 	)
 
