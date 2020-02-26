@@ -14,6 +14,7 @@ import (
 
 	"html/template"
 
+	"github.com/NYTimes/gziphandler"
 	"github.com/eknkc/amber"
 	"github.com/go-chi/chi"
 	"github.com/reconquest/karma-go"
@@ -161,6 +162,15 @@ func (web *Web) ServeFunc(handler Handler) http.HandlerFunc {
 }
 
 func (web *Web) ServeDirectory(dir string, prefix string) http.HandlerFunc {
+	handler := gziphandler.GzipHandler(
+		http.StripPrefix(
+			prefix,
+			http.FileServer(
+				http.Dir(dir),
+			),
+		),
+	)
+
 	return func(
 		writer http.ResponseWriter,
 		request *http.Request,
@@ -170,7 +180,7 @@ func (web *Web) ServeDirectory(dir string, prefix string) http.HandlerFunc {
 			return
 		}
 
-		http.StripPrefix(prefix, http.FileServer(http.Dir(dir))).ServeHTTP(
+		handler.ServeHTTP(
 			writer,
 			request,
 		)
