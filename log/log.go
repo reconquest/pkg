@@ -36,6 +36,7 @@ func init() {
 	stderr = lorg.NewLog()
 	stderr.SetIndentLines(true)
 	stderr.SetFormat(theme)
+	stderr.SetOutput(theme)
 
 	logger = cog.NewLogger(stderr)
 
