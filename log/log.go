@@ -52,6 +52,10 @@ func NewChild() *cog.Logger {
 	return logger.NewChild()
 }
 
+func GetLogger() *cog.Logger {
+	return logger
+}
+
 func NewChildWithPrefix(prefix string) *cog.Logger {
 	return logger.NewChildWithPrefix(prefix)
 }
