@@ -55,6 +55,10 @@ func SetLevel(level Level) {
 	stderr.SetLevel(level)
 }
 
+func GetLevel() Level {
+	return stderr.GetLevel()
+}
+
 func NewChild() *cog.Logger {
 	return logger.NewChild()
 }
