@@ -121,7 +121,9 @@ func (context *Context) Render(name string) Status {
 		)
 	}
 
-	context.GetResponseWriter().Header().Set("Content-Type", "text/html; charset=utf-8")
+	context.GetResponseWriter().
+		Header().
+		Set("Content-Type", "text/html; charset=utf-8")
 
 	err := context.templates.ExecuteTemplate(
 		context.writer,
@@ -138,6 +140,28 @@ func (context *Context) Render(name string) Status {
 func (context *Context) OK() Status {
 	return Status{
 		Code: http.StatusOK,
+	}
+}
+
+func (context *Context) JSON(code int, response interface{}) Status {
+	context.GetResponseWriter().
+		Header().
+		Set("Content-Type", "application/json")
+
+	// do not send nested error to http client
+	err := json.NewEncoder(context.GetResponseWriter()).Encode(response)
+	if err != nil {
+		return Status{
+			Code: http.StatusInternalServerError,
+			Error: karma.Format(
+				err,
+				"unable to encode response",
+			),
+		}
+	}
+
+	return Status{
+		Code: code,
 	}
 }
 
