@@ -51,6 +51,20 @@ func New() *Web {
 	return &web
 }
 
+func (web *Web) Group() *Web {
+	mux := web.Mux.With().(*chi.Mux)
+
+	next := &Web{
+		Mux:       mux,
+		templates: web.templates,
+		resources: web.resources,
+	}
+
+	copy(next.middlewares, web.middlewares)
+
+	return next
+}
+
 func (web *Web) LoadTemplates(directory string, funcs template.FuncMap) error {
 	compiler := amber.New()
 
