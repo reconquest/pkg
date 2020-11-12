@@ -10,10 +10,10 @@ import (
 	"net/http"
 	"net/url"
 
+	"github.com/reconquest/karma-go"
 	"github.com/reconquest/pkg/log"
 
 	"github.com/go-chi/chi"
-	"github.com/reconquest/karma-go"
 	"github.com/xtgo/uuid"
 )
 
@@ -49,7 +49,11 @@ func NewContext(
 }
 
 func (context *Context) Get(name string) interface{} {
-	return context.data[name]
+	value, ok := context.data[name]
+	if !ok {
+		return nil
+	}
+	return value
 }
 
 func (context *Context) Set(name string, value interface{}) *Context {
@@ -221,7 +225,11 @@ func (context *Context) Error(
 	values ...interface{},
 ) Status {
 	// log error but do not show it
-	log.Errorf(err, message, values...)
+	log.Errorf(
+		karma.Describe("request_id", context.GetID()).Reason(err),
+		message,
+		values...,
+	)
 
 	status := Status{
 		Code:  code,
