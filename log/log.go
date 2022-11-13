@@ -1,13 +1,8 @@
 package log
 
 import (
-	"fmt"
-	"regexp"
-	"runtime"
-
 	"github.com/kovetskiy/lorg"
 	"github.com/reconquest/cog"
-	"github.com/reconquest/colorgful"
 	"github.com/reconquest/karma-go"
 )
 
@@ -32,23 +27,12 @@ const (
 func init() {
 	stderr = lorg.NewLog()
 	stderr.SetIndentLines(true)
-
-	theme := colorgful.MustApplyDefaultTheme(
+	stderr.SetFormat(lorg.NewFormat(
 		`${time:2006-01-02 15:04:05.000} ${level:%s:left:true} ${prefix}%s`,
-		colorgful.Default,
-	)
-
-	if runtime.GOOS != "windows" {
-		stderr.SetFormat(theme)
-		stderr.SetOutput(theme)
-	}
+	))
 
 	logger = cog.NewLogger(stderr)
-
 	logger.SetLevel(lorg.LevelInfo)
-	if runtime.GOOS != "windows" {
-		logger.SetShiftIndent(getShiftIndent(theme, ""))
-	}
 }
 
 func SetLevel(level Level) {
@@ -141,12 +125,4 @@ func Debug(values ...interface{}) {
 
 func Trace(values ...interface{}) {
 	logger.Trace(values...)
-}
-
-func getShiftIndent(theme *colorgful.Theme, prefix string) int {
-	return len(
-		regexp.MustCompile(`\x1b\[[^m]+m`).ReplaceAllString(
-			fmt.Sprintf(theme.Render(lorg.LevelWarning, prefix), ""), "",
-		),
-	)
 }
