@@ -13,7 +13,7 @@ import (
 	"github.com/reconquest/karma-go"
 	"github.com/reconquest/pkg/log"
 
-	"github.com/go-chi/chi"
+	"github.com/go-chi/chi/v5"
 	"github.com/xtgo/uuid"
 )
 
